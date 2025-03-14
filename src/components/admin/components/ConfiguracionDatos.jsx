@@ -43,6 +43,12 @@ const ConfiguracionDatos = () => {
   const [uploadingImages, setUploadingImages] = useState({});
   const [error, setError] = useState("");
 
+  // Función para generar URL completa para imágenes
+  const getFullImageUrl = (url) => {
+    if (!url) return '';
+    return url.startsWith('/') ? `http://localhost:5000${url}` : url;
+  };
+
   // 🚀 Obtener todos los datos de la colección Nosotros
   useEffect(() => {
     const obtenerDatos = async () => {
@@ -150,31 +156,32 @@ const ConfiguracionDatos = () => {
     }
   };
 
-  // 🚀 Guardar cambios en la API
+  // En el método handleGuardar del componente
   const handleGuardar = async () => {
     try {
+      setError(""); // Limpiar errores anteriores
+      
+      console.log("Enviando datos:", datos);
+      
       const response = await fetch("http://localhost:5000/api/configuracion", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos),
       });
 
-      if (!response.ok) throw new Error("Error al guardar los datos");
-
       const result = await response.json();
-      console.log("Respuesta al guardar:", result);
       
+      if (!response.ok) {
+        console.error("Respuesta de error:", result);
+        throw new Error(result.mensaje || result.error || "Error en el servidor");
+      }
+
+      console.log("Respuesta al guardar:", result);
       alert("✅ Datos actualizados correctamente.");
     } catch (err) {
-      console.error("Error al guardar:", err);
-      setError("❌ Error al guardar los datos.");
+      console.error("Error completo al guardar:", err);
+      setError(`❌ Error al guardar los datos: ${err.message}`);
     }
-  };
-
-  // Función para generar URL completa
-  const getFullImageUrl = (url) => {
-    if (!url) return '';
-    return url.startsWith('/') ? `http://localhost:5000${url}` : url;
   };
 
   return (

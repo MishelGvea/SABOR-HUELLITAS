@@ -1,6 +1,7 @@
 // models/Nosotros.js
 const mongoose = require("mongoose");
 
+// Define un esquema que permita campos adicionales
 const NosotrosSchema = new mongoose.Schema({
   titulo: String,
   descripcion: String,
@@ -29,6 +30,9 @@ const NosotrosSchema = new mongoose.Schema({
       descripcion: String
     }
   ]
+}, { 
+  strict: false, // Permite campos adicionales no definidos en el esquema
+  minimize: false // No elimina objetos vacíos
 });
 
 module.exports = mongoose.model("Nosotros", NosotrosSchema, "Nosotros");

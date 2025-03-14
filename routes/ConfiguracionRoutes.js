@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const Nosotros = require("../models/Nosotros");
 
-// Obtener la configuración completa
+// Obtener la configuración
 router.get("/", async (req, res) => {
   try {
     // Buscar el documento existente
@@ -13,55 +13,51 @@ router.get("/", async (req, res) => {
       return res.status(404).json({ mensaje: "Datos no encontrados" });
     }
     
-    // Convertir a objeto plano y eliminar el _id
-    const nosotrosObj = nosotros.toObject();
-    delete nosotrosObj._id;
-    
-    res.json(nosotrosObj);
+    res.json(nosotros);
   } catch (error) {
     console.error("Error al obtener configuración:", error);
     res.status(500).json({ mensaje: "Error al obtener la configuración" });
   }
 });
 
-// Actualizar la configuración completa
+// Actualizar la configuración
 router.put("/", async (req, res) => {
   try {
+    // Agregar logs para depuración
+    console.log("Datos recibidos para actualizar:", req.body);
+    
     // Obtener todos los datos del cuerpo de la petición
-    const datosActualizados = req.body;
+    const datos = req.body;
     
-    // Eliminar el _id si está presente para evitar errores
-    if (datosActualizados._id) {
-      delete datosActualizados._id;
-    }
+    // Buscar el documento existente por su ID
+    const id = datos._id;
+    delete datos._id; // Eliminar _id para evitar errores de MongoDB
     
-    // Buscar el documento existente
-    let nosotros = await Nosotros.findOne();
-    
-    if (!nosotros) {
-      return res.status(404).json({ mensaje: "Datos no encontrados" });
-    }
-    
-    // Actualizar todos los campos
-    Object.keys(datosActualizados).forEach(key => {
-      if (key !== '_id') {
-        nosotros[key] = datosActualizados[key];
+    // Usar findOneAndUpdate en lugar de modificar y guardar
+    const resultado = await Nosotros.findOneAndUpdate(
+      {}, // Usar {} para obtener el primer documento (ya que solo hay uno)
+      { $set: datos },
+      { 
+        new: true, // Devolver el documento actualizado
+        runValidators: true // Ejecutar validadores de esquema
       }
-    });
+    );
     
-    await nosotros.save();
+    if (!resultado) {
+      return res.status(404).json({ mensaje: "No se encontró el documento para actualizar" });
+    }
     
-    // Devolver el objeto actualizado sin el _id
-    const nosotrosObj = nosotros.toObject();
-    delete nosotrosObj._id;
-    
+    console.log("Documento actualizado correctamente");
     res.json({ 
-      mensaje: "Datos actualizados correctamente",
-      configuracion: nosotrosObj
+      mensaje: "Configuración actualizada correctamente",
+      configuracion: resultado
     });
   } catch (error) {
-    console.error("Error al actualizar configuración:", error);
-    res.status(500).json({ mensaje: "Error al actualizar la configuración" });
+    console.error("Error detallado al actualizar configuración:", error);
+    res.status(500).json({ 
+      mensaje: "Error al actualizar la configuración", 
+      error: error.message 
+    });
   }
 });
 
