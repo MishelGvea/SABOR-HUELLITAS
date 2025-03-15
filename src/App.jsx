@@ -32,7 +32,7 @@ import ListaIots from "./components/admin/components/ListaIots";
 import ConfiguracionDatos from "./components/admin/components/ConfiguracionDatos";
 import PersonalizacionPanel from "./components/admin/components/PersonalizacionPanel";
 import HistorialActividades from "./components/admin/components/HistorialActividades";
-
+import AdminCRUDUsuarios from "./components/admin/components/AdminUsuarios";
 
 // Importamos Bootstrap
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -114,6 +114,7 @@ function App() {
         <Route path="configuracion-datos" element={<ConfiguracionDatos />} />
         <Route path="personalizacion-panel" element={<PersonalizacionPanel />} />
         <Route path="historial" element={<HistorialActividades />} />
+        <Route path="crud-usuarios" element={<AdminCRUDUsuarios />} />
       </Route>
 
 
